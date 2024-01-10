@@ -2,6 +2,7 @@ import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+import dash_bootstrap_components as dash_bs
 import plotly.graph_objs as go
 # import pandas as pd
 import datetime
@@ -82,7 +83,7 @@ serial_thread = threading.Thread(target=read_serial_data)
 serial_thread.start()
 
 # Initialize the app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dash_bs.themes.DARKLY])
 
 # Layout of the app
 app.layout = html.Div([
@@ -101,6 +102,38 @@ app.layout = html.Div([
         value=[0, 60]
     )
 ])
+
+""" app.layout = dash_bs.Container(
+    [
+        dash_bs.Row(
+            dash_bs.Col(html.H1("PMX Groundstation Visualizer"), width={"size": 6, "offset": 3}),
+            className="mb-4"
+        ),
+        dash_bs.Row(
+            [
+                dash_bs.Col(
+                    dcc.Graph(id='live-update-graph'),
+                    width=9
+                ),
+                dash_bs.Col(
+                    dcc.RangeSlider(
+                        id='time-slider',
+                        min=0,
+                        max=60,
+                        step=1,
+                        marks={i: f'{-(i-60)} min' for i in range(60, -1, -5)},
+                        value=[0, 60]
+                    ),
+                    width=3
+                )
+            ]
+        )
+    ],
+    fluid=True
+) """
+
+# graph = dcc.Graph(id='live-update-graph')
+# app.layout.children[1].children[0].children[0] = graph
 
 
 # Callback to update the graph

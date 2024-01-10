@@ -5,7 +5,6 @@ from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dash_bs
 import plotly.graph_objs as go
 # import pandas as pd
-import signal, os
 import datetime
 from time import sleep
 from collections import deque
@@ -83,54 +82,21 @@ def read_serial_data():
 serial_thread = threading.Thread(target=read_serial_data)
 serial_thread.start()
 
-
-# Init the dash app
+# Initialize the app
 app = dash.Dash(__name__, external_stylesheets=[dash_bs.themes.DARKLY])
 
 app.layout = html.Div([
-    dcc.Graph(id='live-bar-chart', animate=True),
-    dcc.Graph(id='time-series', animate=True),
+    dcc.Graph(id='live-graph', animate=True),
     dcc.Interval(
         id='interval-component',
-        interval=1000, # in milliseconds
+        interval=1000,  # in milliseconds
         n_intervals=0
-    ),
-    dcc.RangeSlider(
-        id='time-slider',
-        min=0,
-        max = 60,
-        step=1,
-        marks={i: f'{-(i-60)} min' for i in range(60, -1, -5)},
-        value=[0, 60]
-    ),
-    dcc.Graph(id='live-map',
-              config={'uirevision': True},
-              figure={'data': [{'type': 'scattermapbox',
-                                'lat': [],
-                                'lon': [],
-                                'mode': 'lines',
-                                'line': dict(width=2, color='blue')}],
-                      'layout': {
-                          'autosize': True,
-                          'uirevision': True,
-                          'hovermode': 'closest',
-                          'mapbox': {
-                              'accesstoken': credentials.mapbox_token,
-                              'bearing': 0,
-                              'center': {'lat': buffers['lat'][-1], 'lon': buffers['lng'][-1]},
-                              'pitch': 0,
-                              'zoom': 10
-                          }
-                      }},
-              animate=True)
+    )
 ])
 
-
-# Callback for the bar chart
-@app.callback(Output('live-bar-chart', 'figure'),
-              Input('interval-component', 'n_intervals')
-)
-def update_bar_chart(n):
+@app.callback(Output('live-graph', 'figure'),
+              Input('interval-component', 'n_intervals'))
+def update_graph_live(n):
     with buffer_lock:
         data = {key: buffers[key][-1] for key in buffers if key not in ['lat', 'lng', 'time']}
     figure = {
@@ -151,53 +117,5 @@ def update_bar_chart(n):
     }
     return figure
 
-
-# Callback for the time series
-@app.callback(Output('time-series', 'figure'),
-              [Input('interval-component', 'n_intervals')],
-              [State('time-slider', 'value')]
-)
-def update_time_series(n, time_slider):
-    # Get the latest data point
-    current_time = datetime.datetime.now()
-    
-    # Create traces for each line
-    traces = []
-    with buffer_lock:
-        for key in buffers.keys():
-            traces.append(go.Scatter(
-                x=list(buffers['time']),
-                y=list(buffers[key]),
-                mode='lines',
-                name=key
-            ))
-
-    # Calculate x-axis range
-    end_time = current_time - datetime.timedelta(minutes=60 - time_slider[1])
-    start_time = current_time - datetime.timedelta(minutes=60 - time_slider[0])
-
-    # Define layout
-    layout = go.Layout(
-        title='Live Update Graph',
-        xaxis=dict(title='Time', range=[start_time, end_time]),
-        yaxis=dict(title='Values'),
-        showlegend=True,
-        legend=dict(traceorder='reversed'),
-        uirevision='legend'
-    )
-
-    return {'data': traces, 'layout': layout}
-
-
-# Callback for the gps map
-@app.callback(Output('live-map', 'extendData'),
-              [Input('interval-component', 'n_intervals')]
-)
-def update_gps_track(n):
-    with buffer_lock:
-        return dict(lat=[[buffers['lat'][-1]]], lon=[[buffers['lng'][-1]]])
-
-
 if __name__ == '__main__':
-    app.run_server(debug=False)
-    
+    app.run_server()
