@@ -1,5 +1,7 @@
 from CTkMessagebox import CTkMessagebox
 import customtkinter
+import tkinter
+from tkinter import ttk
 
 class RootGUI:
     def __init__(self):
@@ -82,10 +84,12 @@ class ComGui():
                 self.drop_baud.configure(state="disabled")
                 InfoMsg = f"Connection established to {self.clicked_com.get()}"
                 CTkMessagebox(title="Connection Established", message=InfoMsg, icon="check")
+                self.conn = ConnGUI(self.root, self.serial)
             else:
                 ErrorMsg = f"Failure to establish connection to {self.clicked_com.get()}"
                 CTkMessagebox(title="Connection Error", message=ErrorMsg, icon="cancel")
         else:
+            self.conn.ConnGUIClose()
             # start closing serial port
             self.serial.SerialClose()
             self.btn_connect.configure(text="Connect")
@@ -93,6 +97,84 @@ class ComGui():
             self.drop_com.configure(state="normal")
             self.drop_baud.configure(state="normal")
 
+class ConnGUI():
+    def __init__(self, root, serial):
+        self.root = root
+        self.serial = serial
+        self.frame = tkinter.LabelFrame(
+            root, text="Connection Manager", padx=5, pady=5, bg="#2b2b2b", fg="white", width=60
+            )
+        self.sync_label = customtkinter.CTkLabel(
+            self.frame, text="Sync Status: ", width=15, anchor="w"
+        )
+        self.sync_status = customtkinter.CTkLabel(
+            self.frame, text="...Sync...", fg_color="#ff4a00", width=5
+        )
+        self.ch_label = customtkinter.CTkLabel(
+            self.frame, text="Active Channels: ", width=15, anchor="w"
+        )
+        self.ch_status = customtkinter.CTkLabel(
+            self.frame, text="...", fg_color="#ff4a00", width=46
+        )
+        self.btn_start_stream = customtkinter.CTkButton(
+            self.frame, text="Start", state="disabled", width=15, command=self.start_stream
+        )
+        self.btn_stop_stream = customtkinter.CTkButton(
+            self.frame, text="Stop", state="disabled", width=15, command=self.stop_stream
+        )
+
+        self.btn_add_chart = customtkinter.CTkButton(
+            self.frame, text="+", state="disabled", width=40, fg_color="#098577", command=self.new_chart
+        )
+        self.btn_kill_chart = customtkinter.CTkButton(
+            self.frame, text="-", state="disabled", width=40, fg_color="#CC252C", command=self.kill_chart
+        )
+
+        self.save = False
+        self.SaveVar = tkinter.IntVar()
+        self.save_check = customtkinter.CTkCheckBox(
+            self.frame, text="Save Data", variable=self.SaveVar, onvalue=1, offvalue=0, state="disabled", command=self.save_data
+        )
+
+        self.seperator = ttk.Separator(self.frame, orient="vertical")
+
+        self.ConnGUIOpen()
+
+
+    def ConnGUIOpen(self):
+        # self.root.geometry("800x120")
+        self.frame.grid(row=0, column=4, rowspan=3, columnspan=5, padx=5, pady=5)
+        self.sync_label.grid(column=1, row=1)
+        self.sync_status.grid(column=2, row=1, padx= 5)
+        self.ch_label.grid(column=1, row=2)
+        self.ch_status.grid(column=2, row=2, padx=5, pady=5)
+        self.btn_start_stream.grid(column=3, row=1, padx=5, pady=5)
+        self.btn_stop_stream.grid(column=3, row=2, padx=5, pady=5)
+        self.btn_add_chart.grid(column=4, row=1, padx=5, pady=5)
+        self.btn_kill_chart.grid(column=5, row=1, padx=5, pady=5)
+
+        self.save_check.grid(column=4, row=2, columnspan=2, padx=5, pady=5)
+
+        self.seperator.place(relx=0.65, rely=0, relwidth=0.001, relheight=1)
+
+    def ConnGUIClose(self):
+        for widget in self.frame.winfo_children():
+            widget.destroy()
+        self.frame.destroy()
+
+    def start_stream(self):
+        pass
+    def stop_stream(self):
+        pass
+    def new_chart(self):
+        pass
+    def kill_chart(self):
+        pass
+    def save_data(self):
+        pass
+
+
 if __name__ == "__main__":
     RootGUI()
     ComGui()
+    ConnGUI()
