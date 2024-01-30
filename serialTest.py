@@ -21,11 +21,11 @@ flag = GracefulExiter()
 starttime = time.time()
 
 while True:
-    if ser.in_waiting > 0:
+    if ser.in_waiting > 0 and ser.read() == b'<':
         line = ser.readline().decode().strip()
         try:
             data = json.loads(line)
-            print(data)
+            print(f"Temperature: {data['temperature']}, Humidity: {data['humidity']}, Pressure: {data['pressure']}")
         except json.decoder.JSONDecodeError:
             print("JSONDecodeError")
             print(f"Couldn't decode line: {line}")
