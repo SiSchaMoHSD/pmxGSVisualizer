@@ -2,6 +2,8 @@ from CTkMessagebox import CTkMessagebox
 import customtkinter
 import tkinter
 from tkinter import ttk
+import threading
+
 
 class RootGUI:
     def __init__(self):
@@ -11,10 +13,11 @@ class RootGUI:
 
 
 class ComGui():
-    def __init__(self, root, serial):
+    def __init__(self, root, serial, data):
         # initialize widgets
         self.root = root
         self.serial = serial
+        self.data = data
         self.frame = customtkinter.CTkFrame(root, width=140, corner_radius=0)
         self.label_com = customtkinter.CTkLabel(self.frame, text="Available COM Port(s):", width=15, anchor="w")
         self.label_bd = customtkinter.CTkLabel(self.frame, text="Baud Rate: ", width=15, anchor="w")
@@ -76,19 +79,30 @@ class ComGui():
 
     def serial_connect(self):
         if self.btn_connect.cget("text") == "Connect":
+            # start the serial communication
             self.serial.SerialOpen(self)
+            
+            # if connection is established move on
             if self.serial.ser.status:
+                # Update the COM manager
                 self.btn_connect.configure(text="Disconnect")
                 self.btn_refresh.configure(state="disabled")
                 self.drop_com.configure(state="disabled")
                 self.drop_baud.configure(state="disabled")
                 InfoMsg = f"Connection established to {self.clicked_com.get()}"
                 CTkMessagebox(title="Connection Established", message=InfoMsg, icon="check")
-                self.conn = ConnGUI(self.root, self.serial)
+                # Display the Channel Manager
+                self.conn = ConnGUI(self.root, self.serial, self.data)
+
+                self.serial.t1 = threading.Thread(
+                    target=self.serial.SerialSync, args=(self,), daemon=True
+                )
+                self.serial.t1.start()
             else:
                 ErrorMsg = f"Failure to establish connection to {self.clicked_com.get()}"
                 CTkMessagebox(title="Connection Error", message=ErrorMsg, icon="cancel")
         else:
+            self.serial.threading = False
             self.conn.ConnGUIClose()
             # start closing serial port
             self.serial.SerialClose()
@@ -98,9 +112,10 @@ class ComGui():
             self.drop_baud.configure(state="normal")
 
 class ConnGUI():
-    def __init__(self, root, serial):
+    def __init__(self, root, serial, data):
         self.root = root
         self.serial = serial
+        self.data = data
         self.frame = tkinter.LabelFrame(
             root, text="Connection Manager", padx=5, pady=5, bg="#2b2b2b", fg="white", width=60
             )
@@ -108,7 +123,7 @@ class ConnGUI():
             self.frame, text="Sync Status: ", width=15, anchor="w"
         )
         self.sync_status = customtkinter.CTkLabel(
-            self.frame, text="...Sync...", fg_color="#ff4a00", width=5
+            self.frame, text="...Sync...", fg_color="#ff4a00", width=46
         )
         self.ch_label = customtkinter.CTkLabel(
             self.frame, text="Active Channels: ", width=15, anchor="w"
@@ -117,10 +132,10 @@ class ConnGUI():
             self.frame, text="...", fg_color="#ff4a00", width=46
         )
         self.btn_start_stream = customtkinter.CTkButton(
-            self.frame, text="Start", state="disabled", width=15, command=self.start_stream
+            self.frame, text="Start", state="disabled", width=50, command=self.start_stream
         )
         self.btn_stop_stream = customtkinter.CTkButton(
-            self.frame, text="Stop", state="disabled", width=15, command=self.stop_stream
+            self.frame, text="Stop", state="disabled", width=50, command=self.stop_stream
         )
 
         self.btn_add_chart = customtkinter.CTkButton(

@@ -13,7 +13,9 @@ time.sleep(2)
 
 def send_command(command):
     data = {"command": command}
-    ser.write(json.dumps(data).encode('utf-8'))
+    serialdata = json.dumps(data).encode('utf-8') + b'\n'
+    ser.write(serialdata)
+    print(serialdata)
     time.sleep(1)
 
 flag = GracefulExiter()
@@ -21,14 +23,18 @@ flag = GracefulExiter()
 starttime = time.time()
 
 while True:
-    if ser.in_waiting > 0 and ser.read() == b'<':
-        line = ser.readline().decode().strip()
-        try:
-            data = json.loads(line)
-            print(f"Temperature: {data['temperature']}, Humidity: {data['humidity']}, Pressure: {data['pressure']}")
-        except json.decoder.JSONDecodeError:
-            print("JSONDecodeError")
-            print(f"Couldn't decode line: {line}")
+    if ser.in_waiting > 0:
+        if ser.read() == b'<':
+            line = ser.readline().decode().strip()
+            try:
+                data = json.loads(line)
+                print(f"Temperature: {data['temperature']}, Humidity: {data['humidity']}, Pressure: {data['pressure']}")
+                print("Number of data points: ", len(data))
+            except json.decoder.JSONDecodeError:
+                print("JSONDecodeError")
+                print(f"Couldn't decode line: {line}")
+        else:
+            ser.readline()
 
     if (time.time() - starttime) > 5:
         if n % 2 == 0:

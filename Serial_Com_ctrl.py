@@ -1,8 +1,12 @@
 import serial.tools.list_ports
+import time
 
+
+# secure the UART serial communication with the MCU
 class SerialCtrl():
     def __init__(self):
         self.com_list = []
+        self.sync_cnt = 200
 
     def getCOMList(self):
         ports = serial.tools.list_ports.comports()
@@ -42,6 +46,50 @@ class SerialCtrl():
                 self.ser.status = False
         except:
             self.ser.status = False
+
+    def SerialSync(self, gui):
+        self.threading = True
+        cnt=0
+        while self.threading:
+            with gui.data.serData_lock:
+                try:
+                    self.ser.write(gui.data.encode_command(gui.data.sync))
+                    gui.conn.sync_status.configure(text="..Sync..")
+                    gui.conn.sync_status.configure(fg_color="orange")
+                    gui.data.RawMsg = self.ser.readline()
+                    # print(f"RawMsg: {gui.data.RawMsg}")
+                    gui.data.DecodeMsg()
+                    if gui.data.msg['syncStatus'] == gui.data.sync_ok:
+                        gui.data.msg.pop('syncStatus', None)
+                        if len(gui.data.msg) > 0:
+                            gui.conn.btn_start_stream.configure(state="normal")
+                            gui.conn.btn_add_chart.configure(state="normal")
+                            gui.conn.btn_kill_chart.configure(state="normal")
+                            gui.conn.save_check.configure(state="normal")
+                            gui.conn.sync_status.configure(text="OK")
+                            gui.conn.sync_status.configure(fg_color="green")
+                            gui.conn.ch_status.configure(text=len(gui.data.msg))
+                            gui.conn.ch_status.configure(fg_color="green")
+                            gui.data.SyncChannel = len(gui.data.msg)
+                            # 
+                            # 
+                            self.threading = False
+                            break
+                    if self.threading == False:
+                        break
+                except Exception as e:
+                    print(e)
+                cnt += 1
+                if self.threading == False:
+                    break
+
+                if cnt > self.sync_cnt:
+                    cnt = 0
+                    gui.conn.sync_status.configure(text="failed")
+                    gui.conn.sync_status.configure(fg_color="red")
+                    time.sleep(0.5)
+                    if self.threading == False:
+                        break
 
 
 if __name__ == "__main__":
