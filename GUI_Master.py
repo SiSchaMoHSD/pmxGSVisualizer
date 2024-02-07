@@ -6,10 +6,20 @@ import threading
 
 
 class RootGUI:
-    def __init__(self):
+    def __init__(self, serial, data):
         self.root = customtkinter.CTk()
         self.root.title("PMX Live Visualizer")
         self.root.geometry("1200x600")
+        self.serial = serial
+        self.data = data
+
+        self.root.protocol("WM_DELETE_WINDOW", self.close_window)
+
+    def close_window(self):
+        print("Closing the window and exiting the program...")
+        self.root.destroy()
+        self.serial.SerialClose()
+        self.serial.threading = False
 
 
 class ComGui():
@@ -103,9 +113,14 @@ class ComGui():
                 CTkMessagebox(title="Connection Error", message=ErrorMsg, icon="cancel")
         else:
             self.serial.threading = False
-            self.conn.ConnGUIClose()
-            # start closing serial port
+            # Closing the Serial COM
+            # Close the Serial communication
             self.serial.SerialClose()
+            # Closing the Conn Manager
+            # Destroy the channel manager
+            self.conn.ConnGUIClose()
+            self.data.ClearData()
+            
             self.btn_connect.configure(text="Connect")
             self.btn_refresh.configure(state="normal")
             self.drop_com.configure(state="normal")

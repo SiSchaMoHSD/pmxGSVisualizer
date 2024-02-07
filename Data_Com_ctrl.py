@@ -11,6 +11,9 @@ class DataMaster():
         self.SyncChannel = 0
         self.msg = json.loads('{}')
 
+        self.XData = []
+        self.YData = []
+
     def DecodeMsg(self):
         temp = self.RawMsg.decode('utf-8').strip()
         if len(temp) > 0:
@@ -24,3 +27,18 @@ class DataMaster():
         data = {"command": command}
         serialdata = json.dumps(data).encode('utf-8') + b'\n'
         return serialdata
+    
+    def GenChannels(self):
+        self.Channels = [f"Ch{ch}" for ch in range(self.SyncChannel)]
+
+    def buildYdata(self):
+        for _ in range(self.SyncChannel):
+            self.YData.append([])
+
+    def ClearData(self):
+        self.RawMsg = ""
+        self.msg = json.loads('{}')
+        self.YData = []
+    
+if __name__ == "__main__":
+    DataMaster()

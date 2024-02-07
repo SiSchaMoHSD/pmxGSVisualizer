@@ -5,7 +5,7 @@ from Data_Com_ctrl import DataMaster
 # Initiate the Root class that will manage the other classes
 MySerial = SerialCtrl()
 MyData = DataMaster()
-RootMaster = RootGUI()
+RootMaster = RootGUI(MySerial, MyData)
 
 # Initiate the Communication Master class that will manage all the GUI classes
 ComMaster = ComGui(RootMaster.root, MySerial, MyData)

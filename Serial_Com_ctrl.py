@@ -71,8 +71,9 @@ class SerialCtrl():
                             gui.conn.ch_status.configure(text=len(gui.data.msg))
                             gui.conn.ch_status.configure(fg_color="green")
                             gui.data.SyncChannel = len(gui.data.msg)
-                            # 
-                            # 
+                            gui.data.GenChannels()
+                            gui.data.buildYdata()
+                            print(gui.data.Channels, gui.data.YData) 
                             self.threading = False
                             break
                     if self.threading == False:
