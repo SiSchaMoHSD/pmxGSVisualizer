@@ -29,7 +29,7 @@ class DataMaster():
         return serialdata
     
     def GenChannels(self):
-        self.Channels = [f"Ch{ch}" for ch in range(self.SyncChannel)]
+        self.Channels = [f"{ch}" for ch in self.msg.keys()]
 
     def buildYdata(self):
         for _ in range(self.SyncChannel):
