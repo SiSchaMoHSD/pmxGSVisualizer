@@ -3,7 +3,8 @@ import customtkinter
 import tkinter
 from tkinter import ttk
 import threading
-
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class RootGUI:
     def __init__(self, serial, data):
@@ -169,6 +170,7 @@ class ConnGUI():
         self.seperator = ttk.Separator(self.frame, orient="vertical")
 
         self.ConnGUIOpen()
+        self.chartMaster = DisGUI(self.root,self.serial,self.data)
 
 
     def ConnGUIOpen(self):
@@ -194,17 +196,78 @@ class ConnGUI():
 
     def start_stream(self):
         pass
+
     def stop_stream(self):
         pass
+
     def new_chart(self):
-        pass
+        self.chartMaster.AddChannelMaster()
+
     def kill_chart(self):
         pass
+
     def save_data(self):
         pass
+
+class DisGUI():
+    def __init__(self, root, serial, data):
+        self.root = root
+        self.serial = serial
+        self.data = data
+
+        self.frames = []
+        self.framesCol = 0
+        self.framesRow = 4
+        self.totalFrames = 0
+
+        self.figs = []
+
+        # self.controlFrames = []
+    
+    def AddChannelMaster(self):
+        self.AddMasterFrame()
+        self.AdjustRootFrame()
+        self.AddGraph()
+
+    def AddMasterFrame(self):
+        self.frames.append(customtkinter.CTkFrame(self.root))
+        self.totalFrames = len(self.frames)-1
+
+        if self.totalFrames % 2 == 0:
+            self.framesCol = 0
+        else:
+            self.framesCol = 9
+        
+        self.framesRow = 4 + 4 * int(self.totalFrames / 2)
+        self.frames[self.totalFrames].grid(padx=5, column=self.framesCol, row=self.framesRow, columnspan=9, sticky="nw")
+
+    
+    def AdjustRootFrame(self):
+        self.totalFrames = len(self.frames)-1
+        if self.totalFrames > 0:
+            RootW = 800 * 2
+        else:
+            RootW = 800
+        if self.totalFrames+1 == 0:
+            RootH = 120
+        else:
+            RootH = 120 + 430 * (int(self.totalFrames / 2)+1)
+
+        self.root.geometry(f"{RootW}x{RootH}")
+
+    def AddGraph(self):
+        self.figs.append([])
+        self.figs[self.totalFrames].append(plt.Figure(figsize=(7,5), dpi=80))
+        self.figs[self.totalFrames].append(self.figs[self.totalFrames][0].add_subplot(111))
+        self.figs[self.totalFrames].append(
+            FigureCanvasTkAgg(self.figs[self.totalFrames][0], self.frames[self.totalFrames])
+        )
+        self.figs[self.totalFrames][2].get_tk_widget().grid(column=1, row=0, columnspan=9, sticky="n")
+
 
 
 if __name__ == "__main__":
     RootGUI()
     ComGui()
     ConnGUI()
+    DisGUI()
