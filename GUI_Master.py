@@ -196,10 +196,22 @@ class ConnGUI():
         self.frame.destroy()
 
     def start_stream(self):
-        pass
+        self.btn_start_stream.configure(state="disabled")
+        self.btn_stop_stream.configure(state="normal")
+
+        self.serial.t1 = threading.Thread(target=self.serial.SerialDataStream, args=(self,), daemon=True)
+        self.serial.t1.start()
 
     def stop_stream(self):
-        pass
+        self.btn_start_stream.configure(state="normal")
+        self.btn_stop_stream.configure(state="disabled")
+        self.serial.threading = False
+        # own temporarly exit command ########################################################################
+        try:
+            self.serial.ser.write(self.data.encode_command(self.data.StopStream))
+        except Exception as e:
+            print(e)
+        # own exit command ########################################################################
 
     def new_chart(self):
         self.chartMaster.AddChannelMaster()

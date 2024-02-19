@@ -92,6 +92,18 @@ class SerialCtrl():
                     if self.threading == False:
                         break
 
+    def SerialDataStream(self, gui):
+        self.threading = True
+
+        while self.threading:
+            try:
+                self.ser.write(gui.data.encode_command(gui.data.StartStream))
+                gui.data.RawMsg = self.ser.readline()
+                print(f"RawMsg: {gui.data.RawMsg}")
+                gui.data.DecodeMsg()
+                print(f"msg: {gui.data.msg}")
+            except Exception as e:
+                print(e)
 
 if __name__ == "__main__":
     SerialCtrl()

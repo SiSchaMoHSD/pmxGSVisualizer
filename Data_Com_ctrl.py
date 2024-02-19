@@ -6,8 +6,8 @@ class DataMaster():
         self.serData_lock = threading.Lock()
         self.sync = "sync"
         self.sync_ok = "!"
-        self.StartStream = "#A#\n"
-        self.StopStream = "#S#\n"
+        self.StartStream = "start"
+        self.StopStream = "stop"
         self.SyncChannel = 0
         self.msg = json.loads('{}')
 
