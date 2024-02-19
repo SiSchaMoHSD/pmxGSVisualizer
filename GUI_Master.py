@@ -204,7 +204,17 @@ class ConnGUI():
         self.chartMaster.AddChannelMaster()
 
     def kill_chart(self):
-        pass
+        try:
+            if len(self.chartMaster.frames) > 0:
+                totalFrames = len(self.chartMaster.frames)-1
+                self.chartMaster.frames[totalFrames].destroy()
+                self.chartMaster.frames.pop()
+                self.chartMaster.figs.pop()
+                self.chartMaster.controlFrames[totalFrames][0].destroy()
+                self.chartMaster.controlFrames.pop()
+                self.chartMaster.AdjustRootFrame()
+        except:
+            pass
 
     def save_data(self):
         pass
@@ -222,12 +232,13 @@ class DisGUI():
 
         self.figs = []
 
-        # self.controlFrames = []
+        self.controlFrames = []
     
     def AddChannelMaster(self):
         self.AddMasterFrame()
         self.AdjustRootFrame()
         self.AddGraph()
+        self.AddBtnFrame()
 
     def AddMasterFrame(self):
         self.frames.append(customtkinter.CTkFrame(self.root))
@@ -263,6 +274,26 @@ class DisGUI():
             FigureCanvasTkAgg(self.figs[self.totalFrames][0], self.frames[self.totalFrames])
         )
         self.figs[self.totalFrames][2].get_tk_widget().grid(column=1, row=0, columnspan=9, sticky="n")
+
+    def AddBtnFrame(self):
+        btnH = 8
+        btnW = 30
+        self.controlFrames.append([])
+        self.controlFrames[self.totalFrames].append(
+            customtkinter.CTkFrame(self.frames[self.totalFrames])
+        )
+        self.controlFrames[self.totalFrames][0].grid(
+            column=0, row=0, padx=5, pady=5, sticky="n"
+        )
+        self.controlFrames[self.totalFrames].append(
+            customtkinter.CTkButton(self.controlFrames[self.totalFrames][0], text="+", width=btnW, height=btnH)
+        )
+        self.controlFrames[self.totalFrames][1].grid(column=0, row=0, padx=5, pady=5)
+        self.controlFrames[self.totalFrames].append(
+            customtkinter.CTkButton(self.controlFrames[self.totalFrames][0], text="-", width=btnW, height=btnH)
+        )
+        self.controlFrames[self.totalFrames][2].grid(column=1, row=0, padx=5, pady=5)
+
 
 
 
