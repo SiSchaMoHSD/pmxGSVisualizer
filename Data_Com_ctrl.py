@@ -14,6 +14,11 @@ class DataMaster():
         self.XData = []
         self.YData = []
 
+        self.FunctionMaster = [
+            "RawData",
+            "Voltage"
+        ]
+
     def DecodeMsg(self):
         temp = self.RawMsg.decode('utf-8').strip()
         if len(temp) > 0:

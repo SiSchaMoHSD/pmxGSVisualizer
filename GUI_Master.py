@@ -5,6 +5,7 @@ from tkinter import ttk
 import threading
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from functools import partial
 
 class RootGUI:
     def __init__(self, serial, data):
@@ -212,6 +213,13 @@ class ConnGUI():
                 self.chartMaster.figs.pop()
                 self.chartMaster.controlFrames[totalFrames][0].destroy()
                 self.chartMaster.controlFrames.pop()
+
+                self.chartMaster.channelFrame[totalFrames][0].destroy()
+                self.chartMaster.channelFrame.pop()
+
+                self.chartMaster.viewVar.pop()
+                self.chartMaster.optionVar.pop()
+                self.chartMaster.funcVar.pop()
                 self.chartMaster.AdjustRootFrame()
         except:
             pass
@@ -233,11 +241,18 @@ class DisGUI():
         self.figs = []
 
         self.controlFrames = []
+
+        # adding new data channels
+        self.channelFrame = []
+        self.viewVar = []
+        self.optionVar = []
+        self.funcVar = []
     
     def AddChannelMaster(self):
         self.AddMasterFrame()
         self.AdjustRootFrame()
         self.AddGraph()
+        self.AddChannelFrame()
         self.AddBtnFrame()
 
     def AddMasterFrame(self):
@@ -250,7 +265,7 @@ class DisGUI():
             self.framesCol = 9
         
         self.framesRow = 4 + 4 * int(self.totalFrames / 2)
-        self.frames[self.totalFrames].grid(padx=5, column=self.framesCol, row=self.framesRow, columnspan=9, sticky="nw")
+        self.frames[self.totalFrames].grid(padx=5, pady=5, column=self.framesCol, row=self.framesRow, columnspan=9, sticky="nw")
 
     
     def AdjustRootFrame(self):
@@ -273,7 +288,7 @@ class DisGUI():
         self.figs[self.totalFrames].append(
             FigureCanvasTkAgg(self.figs[self.totalFrames][0], self.frames[self.totalFrames])
         )
-        self.figs[self.totalFrames][2].get_tk_widget().grid(column=1, row=0, columnspan=9, sticky="n")
+        self.figs[self.totalFrames][2].get_tk_widget().grid(column=1, row=0, rowspan=17, columnspan=4, sticky="n")
 
     def AddBtnFrame(self):
         btnH = 8
@@ -286,13 +301,74 @@ class DisGUI():
             column=0, row=0, padx=5, pady=5, sticky="n"
         )
         self.controlFrames[self.totalFrames].append(
-            customtkinter.CTkButton(self.controlFrames[self.totalFrames][0], text="+", width=btnW, height=btnH)
+            customtkinter.CTkButton(
+                self.controlFrames[self.totalFrames][0], text="+", width=btnW, height=btnH,
+                command=partial(self.AddChannel, self.channelFrame[self.totalFrames]))
         )
         self.controlFrames[self.totalFrames][1].grid(column=0, row=0, padx=5, pady=5)
         self.controlFrames[self.totalFrames].append(
-            customtkinter.CTkButton(self.controlFrames[self.totalFrames][0], text="-", width=btnW, height=btnH)
+            customtkinter.CTkButton(
+                self.controlFrames[self.totalFrames][0], text="-", width=btnW, height=btnH,
+                command=partial(self.DeleteChannel, self.channelFrame[self.totalFrames]))
         )
         self.controlFrames[self.totalFrames][2].grid(column=1, row=0, padx=5, pady=5)
+    
+    def AddChannelFrame(self):
+        # method to add the channel frame
+        self.channelFrame.append([])
+        self.viewVar.append([])
+        self.optionVar.append([])
+        self.funcVar.append([])
+        self.channelFrame[self.totalFrames].append(
+            customtkinter.CTkFrame(self.frames[self.totalFrames])
+        )
+
+        self.channelFrame[self.totalFrames].append(self.totalFrames)
+
+        self.channelFrame[self.totalFrames][0].grid(
+            column=0, row=1, padx=5, pady=5, rowspan=16, sticky="n"
+        )
+        self.AddChannel(self.channelFrame[self.totalFrames])
+
+    def AddChannel(self, channelFrame):
+        # method that adds options & controls to the channel frame
+        if len(channelFrame[0].winfo_children()) < 8:
+            newFrameChannel = customtkinter.CTkFrame(channelFrame[0])
+
+            newFrameChannel.grid(column=0, row=len(channelFrame[0].winfo_children())-1)
+            self.viewVar[channelFrame[1]].append(customtkinter.IntVar())
+            ch_btn = customtkinter.CTkCheckBox(newFrameChannel, text='', variable=self.viewVar[channelFrame[1]][len(self.viewVar[channelFrame[1]])-1],
+                                               onvalue=1, offvalue=0)
+            ch_btn.grid(column=0, row=0, padx=1)
+            self.ChannelOption(newFrameChannel, channelFrame[1])
+            self.ChannelFunc(newFrameChannel, channelFrame[1])
+
+    def ChannelOption(self, frame, channelFrameNumber):
+        self.optionVar[channelFrameNumber].append(customtkinter.StringVar())
+
+        bds = self.data.Channels
+
+        self.optionVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1].set(bds[0])
+        drop_ch = customtkinter.CTkOptionMenu(frame, values=bds, variable=self.optionVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1])
+        drop_ch.configure(width=15)
+        drop_ch.grid(column=1, row=0, padx=1)
+
+    def ChannelFunc(self, frame, channelFrameNumber):
+        self.funcVar[channelFrameNumber].append(customtkinter.StringVar())
+
+        bds = self.data.FunctionMaster
+
+        self.funcVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1].set(bds[0])
+        drop_ch = customtkinter.CTkOptionMenu(frame, values=bds, variable=self.funcVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1])
+        drop_ch.configure(width=15)
+        drop_ch.grid(column=2, row=0, padx=1)
+
+    def DeleteChannel(self, channelFrame):
+        if len(channelFrame[0].winfo_children()) > 1:
+            channelFrame[0].winfo_children()[len(channelFrame[0].winfo_children())-1].destroy()
+            self.viewVar[channelFrame[1]].pop()
+            self.optionVar[channelFrame[1]].pop()
+            self.funcVar[channelFrame[1]].pop()
 
 
 
