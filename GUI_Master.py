@@ -1,3 +1,4 @@
+from turtle import color
 from CTkMessagebox import CTkMessagebox
 import customtkinter
 import tkinter
@@ -204,13 +205,13 @@ class ConnGUI():
 
     def UpdateChart(self):
         try:
-            mydisplayChannels = []
+            #mydisplayChannels = []
             for MyChannelOpt in range(len(self.chartMaster.viewVar)):
                 self.chartMaster.figs[MyChannelOpt][1].clear()
                 for cnt, state in enumerate(self.chartMaster.viewVar[MyChannelOpt]):
                     if state.get():
                         MyChannel = self.chartMaster.optionVar[MyChannelOpt][cnt].get()
-                        mydisplayChannels.append(MyChannel)
+                        #mydisplayChannels.append(MyChannel)
                         ChannelIndex = self.data.Channels.index(MyChannel)
 
                         FuncName = self.chartMaster.funcVar[MyChannelOpt][cnt].get()
@@ -219,7 +220,10 @@ class ConnGUI():
                         self.color = self.data.ChannelColor[ChannelIndex]
                         self.y = self.data.YDisplay[ChannelIndex]
                         self.x = self.data.XDisplay
-            print(mydisplayChannels)
+                        self.data.FunctionMaster[FuncName](self)
+                self.chartMaster.figs[MyChannelOpt][1].grid(color='b', linestyle='-', linewidth=0.2)
+                self.chartMaster.figs[MyChannelOpt][0].canvas.draw()
+            #print(mydisplayChannels)
         except Exception as e:
             print(e)
 
@@ -392,7 +396,7 @@ class DisGUI():
     def ChannelFunc(self, frame, channelFrameNumber):
         self.funcVar[channelFrameNumber].append(customtkinter.StringVar())
 
-        bds = self.data.FunctionMaster
+        bds = [func for func in self.data.FunctionMaster.keys()]
 
         self.funcVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1].set(bds[0])
         drop_ch = customtkinter.CTkOptionMenu(frame, values=bds, variable=self.funcVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1])

@@ -16,10 +16,10 @@ class DataMaster():
         self.XData = []
         self.YData = []
 
-        self.FunctionMaster = [
-            "RawData",
-            "Voltage"
-        ]
+        self.FunctionMaster = {
+            "RawData": self.RawData,
+            "Voltage(12bit)": self.VoltData
+        }
         self.DisplayTimeRange = 5
 
         self.ChannelColor = [
@@ -99,6 +99,12 @@ class DataMaster():
         x = np.array(self.XData)
         self.XDisplay = np.linspace(x.min(), x.max(), len(x), endpoint=0)
         self.YDisplay = np.array(self.YData)
+
+    def RawData(self, gui):
+        gui.chart.plot(gui.x, gui.y, color=gui.color, dash_capstyle='projecting', linewidth=1)
+
+    def VoltData(self, gui):
+        gui.chart.plot(gui.x, (gui.y/4096)*3.3, color=gui.color, dash_capstyle='projecting', linewidth=1)
 
     
 if __name__ == "__main__":
