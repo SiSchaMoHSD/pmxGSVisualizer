@@ -117,8 +117,8 @@ class SerialCtrl():
                     if gui.data.StreamData:
                         gui.data.UpdateXdata()
                         gui.data.UpdateYdata()
-                        Ysample = [Ysam[len(gui.data.XData)-1] for Ysam in gui.data.YData]
-                        print(f"Xdata: {gui.data.XData[len(gui.data.XData)-1]}, Ydata: {Ysample}")
+                        gui.data.AdjustData()
+                        print(f"Xdata: {len(gui.data.XData)}, Ydata: {len(gui.data.YData[0])}")
                 except Exception as e:
                     print(e)
 

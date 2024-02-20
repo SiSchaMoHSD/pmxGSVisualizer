@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+import numpy as np
 
 class DataMaster():
     def __init__(self):
@@ -19,6 +20,7 @@ class DataMaster():
             "RawData",
             "Voltage"
         ]
+        self.DisplayTimeRange = 5
 
     def DecodeMsg(self):
         temp = self.RawMsg.decode('utf-8').strip()
@@ -73,6 +75,18 @@ class DataMaster():
     def UpdateYdata(self):
         for ch in range(self.SyncChannel):
             self.YData[ch].append(self.msg[self.Channels[ch]])
+
+    
+    def AdjustData(self):
+        lenXdata = len(self.XData)
+        if (self.XData[lenXdata -1] - self.XData[0]) > self.DisplayTimeRange:
+            del self.XData[0]
+            for ydata in self.YData:
+                del ydata[0]
+        x = np.array(self.XData)
+        self.XDisplay = np.linspace(x.min(), x.max(), len(x), endpoint=0)
+        self.YDisplay = np.array(self.YData)
+
     
 if __name__ == "__main__":
     DataMaster()
