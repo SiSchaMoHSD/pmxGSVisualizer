@@ -96,14 +96,32 @@ class SerialCtrl():
         self.threading = True
 
         while self.threading:
-            try:
-                self.ser.write(gui.data.encode_command(gui.data.StartStream))
-                gui.data.RawMsg = self.ser.readline()
-                print(f"RawMsg: {gui.data.RawMsg}")
-                gui.data.DecodeMsg()
-                print(f"msg: {gui.data.msg}")
-            except Exception as e:
-                print(e)
+            with gui.data.serData_lock:
+                try:
+                    self.ser.write(gui.data.encode_command(gui.data.StartStream))
+                    gui.data.RawMsg = self.ser.readline()
+                    gui.data.DecodeMsg()
+                    gui.data.StreamDataCheck()
+                    if gui.data.StreamData:
+                        gui.data.SetRefTime()
+                        break
+                except Exception as e:
+                    print(e)
+
+        while self.threading:
+            with gui.data.serData_lock:
+                try:
+                    gui.data.RawMsg = self.ser.readline()
+                    gui.data.DecodeMsg()
+                    gui.data.StreamDataCheck()
+                    if gui.data.StreamData:
+                        gui.data.UpdateXdata()
+                        gui.data.UpdateYdata()
+                        Ysample = [Ysam[len(gui.data.XData)-1] for Ysam in gui.data.YData]
+                        print(f"Xdata: {gui.data.XData[len(gui.data.XData)-1]}, Ydata: {Ysample}")
+                except Exception as e:
+                    print(e)
+
 
 if __name__ == "__main__":
     SerialCtrl()
