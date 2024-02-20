@@ -22,6 +22,19 @@ class DataMaster():
         ]
         self.DisplayTimeRange = 5
 
+        self.ChannelColor = [
+            "blue",
+            "red",
+            "green",
+            "orange",
+            "purple",
+            "black",
+            "pink",
+            "brown",
+            "cyan",
+            "magenta"
+        ]
+
     def DecodeMsg(self):
         temp = self.RawMsg.decode('utf-8').strip()
         if len(temp) > 0:

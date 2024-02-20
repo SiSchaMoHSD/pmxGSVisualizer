@@ -108,6 +108,8 @@ class SerialCtrl():
                 except Exception as e:
                     print(e)
 
+        gui.UpdateChart()
+
         while self.threading:
             with gui.data.serData_lock:
                 try:
@@ -118,7 +120,7 @@ class SerialCtrl():
                         gui.data.UpdateXdata()
                         gui.data.UpdateYdata()
                         gui.data.AdjustData()
-                        print(f"Xdata: {len(gui.data.XData)}, Ydata: {len(gui.data.YData[0])}")
+                        # print(f"Xdata: {len(gui.data.XData)}, Ydata: {len(gui.data.YData[0])}")
                 except Exception as e:
                     print(e)
 

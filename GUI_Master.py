@@ -202,6 +202,30 @@ class ConnGUI():
         self.serial.t1 = threading.Thread(target=self.serial.SerialDataStream, args=(self,), daemon=True)
         self.serial.t1.start()
 
+    def UpdateChart(self):
+        try:
+            mydisplayChannels = []
+            for MyChannelOpt in range(len(self.chartMaster.viewVar)):
+                self.chartMaster.figs[MyChannelOpt][1].clear()
+                for cnt, state in enumerate(self.chartMaster.viewVar[MyChannelOpt]):
+                    if state.get():
+                        MyChannel = self.chartMaster.optionVar[MyChannelOpt][cnt].get()
+                        mydisplayChannels.append(MyChannel)
+                        ChannelIndex = self.data.Channels.index(MyChannel)
+
+                        FuncName = self.chartMaster.funcVar[MyChannelOpt][cnt].get()
+
+                        self.chart = self.chartMaster.figs[MyChannelOpt][1]
+                        self.color = self.data.ChannelColor[ChannelIndex]
+                        self.y = self.data.YDisplay[ChannelIndex]
+                        self.x = self.data.XDisplay
+            print(mydisplayChannels)
+        except Exception as e:
+            print(e)
+
+        if self.serial.threading:
+            self.root.after(40, self.UpdateChart)
+
     def stop_stream(self):
         self.btn_start_stream.configure(state="normal")
         self.btn_stop_stream.configure(state="disabled")
