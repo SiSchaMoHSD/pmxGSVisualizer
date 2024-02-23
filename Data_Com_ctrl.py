@@ -2,6 +2,8 @@ import json
 import threading
 import time
 import numpy as np
+from scipy.signal import savgol_filter
+from scipy import signal
 
 class DataMaster():
     def __init__(self):
@@ -18,7 +20,9 @@ class DataMaster():
 
         self.FunctionMaster = {
             "RawData": self.RawData,
-            "Voltage(12bit)": self.VoltData
+            "Voltage(12bit)": self.VoltData,
+            "SavgolFilter": self.SavgolFilter,
+            "DigitalFilter": self.DigitalFilter
         }
         self.DisplayTimeRange = 5
 
@@ -105,6 +109,19 @@ class DataMaster():
 
     def VoltData(self, gui):
         gui.chart.plot(gui.x, (gui.y/4096)*3.3, color=gui.color, dash_capstyle='projecting', linewidth=1)
+
+    def SavgolFilter(self, gui):
+        x = gui.x
+        y = gui.y
+        w = savgol_filter(y, 5, 2)
+        gui.chart.plot(x, w, color="#1cbda5", dash_capstyle='projecting', linewidth=2)
+    
+    def DigitalFilter(self, gui):
+        x = gui.x
+        y = gui.y
+        b, a = signal.ellip(4, 0.01, 120, 0.125)
+        fgust = signal.filtfilt(b, a, y, method="gust")
+        gui.chart.plot(x, fgust, color="#db2775", dash_capstyle='projecting', linewidth=2)
 
     
 if __name__ == "__main__":

@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from functools import partial
 
+from numpy import pad
+
 class RootGUI:
     def __init__(self, serial, data):
         self.root = customtkinter.CTk()
@@ -311,9 +313,9 @@ class DisGUI():
     def AdjustRootFrame(self):
         self.totalFrames = len(self.frames)-1
         if self.totalFrames > 0:
-            RootW = 800 * 2
+            RootW = 900 * 2
         else:
-            RootW = 800
+            RootW = 900
         if self.totalFrames+1 == 0:
             RootH = 120
         else:
@@ -379,7 +381,7 @@ class DisGUI():
             self.viewVar[channelFrame[1]].append(customtkinter.IntVar())
             ch_btn = customtkinter.CTkCheckBox(newFrameChannel, text='', variable=self.viewVar[channelFrame[1]][len(self.viewVar[channelFrame[1]])-1],
                                                onvalue=1, offvalue=0)
-            ch_btn.grid(column=0, row=0, padx=1)
+            ch_btn.grid(column=0, row=0, sticky=tkinter.E, pady=1, padx=1)
             self.ChannelOption(newFrameChannel, channelFrame[1])
             self.ChannelFunc(newFrameChannel, channelFrame[1])
 
@@ -390,8 +392,8 @@ class DisGUI():
 
         self.optionVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1].set(bds[0])
         drop_ch = customtkinter.CTkOptionMenu(frame, values=bds, variable=self.optionVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1])
-        drop_ch.configure(width=15)
-        drop_ch.grid(column=1, row=0, padx=1)
+        drop_ch.configure(width=40)
+        drop_ch.grid(column=1, row=0, padx=2, pady=1)
 
     def ChannelFunc(self, frame, channelFrameNumber):
         self.funcVar[channelFrameNumber].append(customtkinter.StringVar())
@@ -400,8 +402,8 @@ class DisGUI():
 
         self.funcVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1].set(bds[0])
         drop_ch = customtkinter.CTkOptionMenu(frame, values=bds, variable=self.funcVar[channelFrameNumber][len(self.optionVar[channelFrameNumber])-1])
-        drop_ch.configure(width=15)
-        drop_ch.grid(column=2, row=0, padx=1)
+        drop_ch.configure(width=40)
+        drop_ch.grid(column=2, row=0, padx=2, pady=1)
 
     def DeleteChannel(self, channelFrame):
         if len(channelFrame[0].winfo_children()) > 1:
