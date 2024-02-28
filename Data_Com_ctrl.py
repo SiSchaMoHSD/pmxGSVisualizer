@@ -18,6 +18,7 @@ class DataMaster():
         self.StopStream = "stop"
         self.SyncChannel = 0
         self.msg = json.loads('{}')
+        self.lastEpoch = 0
 
         self.XData = []
         self.YData = []
@@ -57,7 +58,9 @@ class DataMaster():
                     # write header row
                     writer.writerow(self.Channels)
                 # write row with values from the json msg
-                writer.writerow([self.msg[ch] for ch in self.Channels])
+                if self.lastEpoch != self.msg['time']:
+                    writer.writerow([self.msg[ch] for ch in self.Channels])
+                    self.lastEpoch = self.msg['time']
 
 
     def DecodeMsg(self):
