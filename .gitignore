@@ -1,3 +1,4 @@
 .backup/
 credentials.py
 __pycache__/
+*.csv

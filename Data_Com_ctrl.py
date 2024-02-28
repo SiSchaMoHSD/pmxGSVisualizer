@@ -1,9 +1,13 @@
+from genericpath import exists
 import json
 import threading
 import time
 import numpy as np
 from scipy.signal import savgol_filter
 from scipy import signal
+from datetime import datetime
+import os
+import csv
 
 class DataMaster():
     def __init__(self):
@@ -38,6 +42,23 @@ class DataMaster():
             "cyan",
             "magenta"
         ]
+
+    def FileNameFunc(self):
+        now = datetime.now()
+        # ISO 8601 format
+        self.filename = now.strftime("%Y-%m-%dT%H-%M-%S") + ".csv"
+
+    def SaveData(self, gui):
+        exists = os.path.isfile(self.filename)
+        if gui.save:
+            with open(self.filename, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                if not exists:
+                    # write header row
+                    writer.writerow(self.Channels)
+                # write row with values from the json msg
+                writer.writerow([self.msg[ch] for ch in self.Channels])
+
 
     def DecodeMsg(self):
         temp = self.RawMsg.decode('utf-8').strip()

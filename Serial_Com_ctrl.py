@@ -1,3 +1,4 @@
+import threading
 import serial.tools.list_ports
 import time
 
@@ -73,6 +74,7 @@ class SerialCtrl():
                             gui.data.SyncChannel = len(gui.data.msg)
                             gui.data.GenChannels()
                             gui.data.buildYdata()
+                            gui.data.FileNameFunc()
                             print(gui.data.Channels, gui.data.YData) 
                             self.threading = False
                             break
@@ -121,6 +123,9 @@ class SerialCtrl():
                         gui.data.UpdateYdata()
                         gui.data.AdjustData()
                         # print(f"Xdata: {len(gui.data.XData)}, Ydata: {len(gui.data.YData[0])}")
+                        if gui.save:
+                            t1 = threading.Thread(target=gui.data.SaveData, args=(gui,), daemon=True)
+                            t1.start()
                 except Exception as e:
                     print(e)
 
