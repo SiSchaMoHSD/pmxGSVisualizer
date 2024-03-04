@@ -212,13 +212,14 @@ class ConnGUI():
 
     def UpdateChart(self):
         try:
-            #mydisplayChannels = []
+            mydisplayChannels = [] # list of channels to be displayed
             for MyChannelOpt in range(len(self.chartMaster.viewVar)):
                 self.chartMaster.figs[MyChannelOpt][1].clear()
+                mydisplayChannels.clear()
                 for cnt, state in enumerate(self.chartMaster.viewVar[MyChannelOpt]):
                     if state.get():
                         MyChannel = self.chartMaster.optionVar[MyChannelOpt][cnt].get()
-                        #mydisplayChannels.append(MyChannel)
+                        mydisplayChannels.append(MyChannel) # add the channel to the list of channels to be displayed
                         ChannelIndex = self.data.Channels.index(MyChannel)
 
                         FuncName = self.chartMaster.funcVar[MyChannelOpt][cnt].get()
@@ -229,8 +230,9 @@ class ConnGUI():
                         self.x = self.data.XDisplay
                         self.data.FunctionMaster[FuncName](self)
                 self.chartMaster.figs[MyChannelOpt][1].grid(color='b', linestyle='-', linewidth=0.2)
+                self.chartMaster.figs[MyChannelOpt][1].legend(mydisplayChannels)
                 self.chartMaster.figs[MyChannelOpt][0].canvas.draw()
-            #print(mydisplayChannels)
+            #print(mydisplayChannels) # print the list of channels to be displayed
         except Exception as e:
             print(e)
 

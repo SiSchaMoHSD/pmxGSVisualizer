@@ -44,6 +44,8 @@ class DataMaster():
             "magenta"
         ]
 
+        #self.legend = {}
+
     def FileNameFunc(self):
         now = datetime.now()
         # ISO 8601 format
@@ -84,6 +86,9 @@ class DataMaster():
     
     def GenChannels(self):
         self.Channels = [f"{ch}" for ch in self.msg.keys()]
+        # generate legend dictionary
+        #for i in range(len(self.Channels)):
+        #    self.legend[self.Channels[i]] = self.ChannelColor[i]
 
     def buildYdata(self):
         for _ in range(self.SyncChannel):
