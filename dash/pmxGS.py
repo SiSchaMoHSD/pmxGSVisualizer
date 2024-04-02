@@ -16,7 +16,7 @@ import credentials
 
 
 # Open the serial port
-ser = serial.Serial('COM7', 115200, timeout=1)
+ser = serial.Serial('COM4', 115200, timeout=1)
 sleep(5)  # wait for COM port
 # Define the format for the data structure
 struct_format = '<9fH5B3d'

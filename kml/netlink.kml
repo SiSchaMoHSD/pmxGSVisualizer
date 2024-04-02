@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="23">
+        <NetworkLink id="24">
+            <name>PMX Track</name>
+            <gx:balloonVisibility>1</gx:balloonVisibility>
+            <refreshVisibility>0</refreshVisibility>
+            <Link id="25">
+                <href>c:\Users\olivei_m\Documents\Projects\PMX_GroundStation_Visualizer\kml\gpsdata.kml</href>
+                <refreshMode>onInterval</refreshMode>
+                <refreshInterval>2</refreshInterval>
+            </Link>
+        </NetworkLink>
+    </Document>
+</kml>
