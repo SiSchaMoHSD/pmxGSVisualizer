@@ -1,4 +1,3 @@
-from turtle import color
 from CTkMessagebox import CTkMessagebox
 import customtkinter
 import tkinter
@@ -7,7 +6,7 @@ import threading
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from functools import partial
-
+from PIL import Image
 
 class RootGUI:
     def __init__(self, serial, data):
@@ -170,6 +169,13 @@ class ConnGUI():
             self.frame, text="-", state="disabled", width=40, fg_color="#CC252C", command=self.kill_chart
         )
 
+        # Add GE GPS Button
+        self.updateKML = False
+        self.btn_img = customtkinter.CTkImage(Image.open("assets/ge.png"), size=(26, 26))
+        self.btn_ge = customtkinter.CTkButton(
+            self.frame, text="GE GPS", image=self.btn_img, width=40, state="disabled", command=self.start_GE
+        )
+
         self.save = False
         self.SaveVar = tkinter.IntVar()
         self.save_check = customtkinter.CTkCheckBox(
@@ -196,7 +202,9 @@ class ConnGUI():
 
         self.save_check.grid(column=4, row=2, columnspan=2, padx=5, pady=5)
 
-        self.seperator.place(relx=0.65, rely=0, relwidth=0.001, relheight=1)
+        self.btn_ge.grid(column=6, row=1, padx=5, pady=5)
+
+        self.seperator.place(relx=0.5, rely=0, relwidth=0.001, relheight=1)
 
     def ConnGUIClose(self):
         for widget in self.frame.winfo_children():
@@ -206,6 +214,7 @@ class ConnGUI():
     def start_stream(self):
         self.btn_start_stream.configure(state="disabled")
         self.btn_stop_stream.configure(state="normal")
+        self.btn_ge.configure(state="normal")
 
         self.serial.t1 = threading.Thread(target=self.serial.SerialDataStream, args=(self,), daemon=True)
         self.serial.t1.start()
@@ -242,6 +251,7 @@ class ConnGUI():
     def stop_stream(self):
         self.btn_start_stream.configure(state="normal")
         self.btn_stop_stream.configure(state="disabled")
+        self.btn_ge.configure(state="disabled")
         self.serial.threading = False
         # own temporarly exit command ########################################################################
         try:
@@ -278,6 +288,12 @@ class ConnGUI():
             self.save = False
         else:
             self.save = True
+
+    def start_GE(self):
+        self.data.createKML(self)
+
+    def noGPSWarning(self):
+        CTkMessagebox(title="No GPS Data", message="No GPS data found!", icon="cancel")
 
 class DisGUI():
     def __init__(self, root, serial, data):

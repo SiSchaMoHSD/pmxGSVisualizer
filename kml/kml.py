@@ -9,6 +9,7 @@ from collections import deque
 import simplekml
 from simplekml import Kml, Snippet, Types, AltitudeMode
 import xml.etree.ElementTree as ET
+import subprocess
 
 # register the namespaces
 ET.register_namespace('', 'http://www.opengis.net/kml/2.2')
@@ -138,6 +139,9 @@ def updateKML():
     # Write the changes back to the KML file in UTF-8 encoding
     tree.write(kmlfilepath, encoding='utf-8', xml_declaration=True)
 # End of updateKML function ---------------------------------------------------------------------------------------------
+
+# open kml file
+subprocess.run(['start', join(dirname(abspath(__file__)), 'netlink.kml')], shell=True)
 
 # open csv file
 with open(csvfilepath, 'r') as file:

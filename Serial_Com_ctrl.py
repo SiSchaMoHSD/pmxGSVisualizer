@@ -126,6 +126,9 @@ class SerialCtrl():
                         if gui.save:
                             t1 = threading.Thread(target=gui.data.SaveData, args=(gui,), daemon=True)
                             t1.start()
+                        if gui.updateKML:
+                            t2 = threading.Thread(target=gui.data.updateKML, args=(gui,), daemon=True)
+                            t2.start()
                 except Exception as e:
                     print(e)
 
