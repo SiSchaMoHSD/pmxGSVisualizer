@@ -4,3 +4,7 @@ __pycache__/
 *.csv
 *.ini
 *.geojson
+picolasData/
+*data.kml
+2024-04-25-netlink.kml
+2024-04-17-netlink.kml

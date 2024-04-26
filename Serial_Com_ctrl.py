@@ -129,6 +129,9 @@ class SerialCtrl():
                         if gui.updateKML:
                             t2 = threading.Thread(target=gui.data.updateKML, args=(gui,), daemon=True)
                             t2.start()
+                        if gui.toInflux:
+                            t3 = threading.Thread(target=gui.data.send2Influx, args=(gui,), daemon=True)
+                            t3.start()
                 except Exception as e:
                     print(e)
 

@@ -1,4 +1,3 @@
-from genericpath import exists
 import json
 import threading
 import time
@@ -12,6 +11,8 @@ import xml.etree.ElementTree as ET
 from collections import deque
 from simplekml import Kml, Snippet, Types, AltitudeMode, RefreshMode
 import subprocess
+from influxdb_client import InfluxDBClient, Point, WriteOptions, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 class DataMaster():
     def __init__(self):
@@ -24,6 +25,7 @@ class DataMaster():
         self.msg = json.loads('{}')
         self.lastEpoch = 0
         self.lastEpochKML = 0
+        self.lastEpochInflux = 0
         self.Channels = []
 
         self.XData = []
@@ -56,6 +58,9 @@ class DataMaster():
         self.namespaces = {'': 'http://www.opengis.net/kml/2.2', 'gx': 'http://www.google.com/kml/ext/2.2'}
 
         #self.legend = {}
+        self.client = InfluxDBClient.from_config_file(r'./gpslive/config.ini', debug=True)
+        self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
+
 
     def FileNameFunc(self):
         now = datetime.now()
@@ -190,6 +195,24 @@ class DataMaster():
                 # write the changes back to the KML file in UTF-8 encoding
                 tree.write('./kml/' + self.kmlFilename, encoding='utf-8', xml_declaration=True)
                 self.lastEpochKML = self.msg['time']
+
+    def send2Influx(self, gui):
+        if gui.toInflux:
+            if self.lastEpochInflux != self.msg['time']:
+                data = Point("PMXVisualizer")
+                for ch in self.Channels:
+                    # skip time
+                    if ch == 'time':
+                        continue
+                    if ch == 'humidity' or ch == 'temperature':
+                        data.field(ch, float(self.msg[ch]))
+                    else:
+                        data.field(ch, self.msg[ch])
+                #data.time(self.msg['time'] * int(1e9))
+                data.time(time.time_ns())
+                self.write_api.write("gpslivetest", "roboflex", record=data)
+                self.lastEpochInflux = self.msg['time']
+
 
 
     def DecodeMsg(self):

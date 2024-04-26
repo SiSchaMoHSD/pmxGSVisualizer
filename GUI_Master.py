@@ -179,7 +179,14 @@ class ConnGUI():
         self.save = False
         self.SaveVar = tkinter.IntVar()
         self.save_check = customtkinter.CTkCheckBox(
-            self.frame, text="Save Data", variable=self.SaveVar, onvalue=1, offvalue=0, state="disabled", command=self.save_data
+            self.frame, text="CSV", variable=self.SaveVar, onvalue=1, offvalue=0, state="disabled", command=self.save_data
+        )
+
+        # Add To InfluxDB Checkbox
+        self.toInflux = False
+        self.InfluxVar = tkinter.IntVar()
+        self.influx_check = customtkinter.CTkCheckBox(
+            self.frame, text="InfluxDB", variable=self.InfluxVar, onvalue=1, offvalue=0, state="disabled", command=self.influxTransfer
         )
 
         self.seperator = ttk.Separator(self.frame, orient="vertical")
@@ -201,6 +208,7 @@ class ConnGUI():
         self.btn_kill_chart.grid(column=5, row=1, padx=5, pady=5)
 
         self.save_check.grid(column=4, row=2, columnspan=2, padx=5, pady=5)
+        self.influx_check.grid(column=5, row=2, columnspan=2, padx=5, pady=5)
 
         self.btn_ge.grid(column=6, row=1, padx=5, pady=5)
 
@@ -215,6 +223,7 @@ class ConnGUI():
         self.btn_start_stream.configure(state="disabled")
         self.btn_stop_stream.configure(state="normal")
         self.btn_ge.configure(state="normal")
+        self.influx_check.configure(state="normal")
 
         self.serial.t1 = threading.Thread(target=self.serial.SerialDataStream, args=(self,), daemon=True)
         self.serial.t1.start()
@@ -251,7 +260,10 @@ class ConnGUI():
     def stop_stream(self):
         self.btn_start_stream.configure(state="normal")
         self.btn_stop_stream.configure(state="disabled")
+        # set influx_check variable to 0
+        self.InfluxVar.set(0)
         self.btn_ge.configure(state="disabled")
+        self.influx_check.configure(state="disabled")
         self.serial.threading = False
         # own temporarly exit command ########################################################################
         try:
@@ -288,6 +300,17 @@ class ConnGUI():
             self.save = False
         else:
             self.save = True
+
+    def influxTransfer(self):
+        # check if the influx checkbox variable is set to 1
+        if self.InfluxVar.get() == 1:
+            # set the influx variable to 1
+            self.toInflux = True
+            print("InfluxDB Transfer Enabled")
+        else:
+            # set the influx variable to 0
+            self.toInflux = False
+            print("InfluxDB Transfer Disabled")
 
     def start_GE(self):
         self.data.createKML(self)
