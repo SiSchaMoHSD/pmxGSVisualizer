@@ -16,7 +16,7 @@ import credentials
 
 
 # Open the serial port
-ser = serial.Serial('COM4', 115200, timeout=1)
+ser = serial.Serial('COM8', 115200, timeout=1)
 sleep(5)  # wait for COM port
 # Define the format for the data structure
 struct_format = '<9fH5B3d'
@@ -117,7 +117,7 @@ app.layout = html.Div([
                           'mapbox': {
                               'accesstoken': credentials.mapbox_token,
                               'bearing': 0,
-                              'center': {'lat': buffers['lat'][-1], 'lon': buffers['lng'][-1]},
+                              'center': {'lat': buffers['lat'][-1] if buffers['lat'] else 0, 'lon': buffers['lng'][-1] if buffers['lng'] else 0},
                               'pitch': 0,
                               'zoom': 10
                           }
